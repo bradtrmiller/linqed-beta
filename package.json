@@ -1,12 +1,9 @@
 {
-  "name": "connector-game",
-  "private": true,
+  "name": "linqed-beta",
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
-    "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "dev": "vite"
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -14,6 +11,6 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.0",
-    "vite": "^4.4.0"
+    "vite": "^4.5.0"
   }
 }
