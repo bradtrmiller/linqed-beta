@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 // ── Analytics helper ───────────────────────────────────────────────────────────
 function track(eventName, params = {}) {
