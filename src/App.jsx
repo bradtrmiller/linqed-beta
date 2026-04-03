@@ -53,35 +53,6 @@ const EXAMPLE_PUZZLE = {
   ],
   connector: { answer: "GOLD", hint: "It's at the end of a rainbow.", reveal: "" }
 };
-      { question: "Frédéric Auguste Bartholdi, the sculptor who designed the Statue of Liberty, held what nationality?", answers: ["Italian","French","American","German"], correct: 1, fact: "The Statue's internal frame was designed by Gustave Eiffel, the same man who built the Eiffel Tower.", displayAnswer: "French *QUARTER*", connectionNote: "The historic heart of New Orleans" },
-      { question: "In 18th-century naval warfare, cannons were categorized by the weight of the iron ball they fired — meaning a ship might be armed with a \"12-___\" or a \"24-___\".", answers: ["Pounder","Shooter","Gunner","Kilo"], correct: 0, fact: "While a '32-pounder' fired a 32lb ball, the cannon itself weighed over 6,000 lbs.", displayAnswer: "*QUARTER* Pounder", connectionNote: "The iconic burger from McDonald's." },
-      { question: "In biology, the evolutionary trend where sensory organs and nervous tissue become concentrated at the anterior end of an organism is known as 'cephalization.' This results in the formation of a distinct what?", answers: ["Tail","Shell","Head","Heart"], correct: 2, fact: "A woodpecker's tongue is so long it wraps around its brain to act as a shock absorber.", displayAnswer: "Head*QUARTER*", connectionNote: "The central office of an organization" }
-    ],
-    connector: { answer: "QUARTER", hint: "Two cents? What about twenty-five?", reveal: "" }
-  },
-  {
-    date: "2026-03-21",
-    questions: [
-      { question: "What is the name for a group of fish swimming together in a coordinated direction?", answers: ["Pod","Pack","School","Flock"], correct: 2, fact: "A school moves in synchronized formation, while a 'shoal' is just a loose social gathering of fish.", displayAnswer: "*MIDDLE* School", connectionNote: "The institution between elementary and high school." },
-      { question: "In music theory, the note that sits exactly in the center of the piano keyboard — the anchor point for reading both treble and bass clef — is called what?", answers: ["Middle C","Concert A","Low G","High F"], correct: 0, fact: "Middle C vibrates at exactly 261.63 Hz and is the most referenced pitch in all of Western music.", displayAnswer: "*MIDDLE* C", connectionNote: "The most referenced note in Western music." },
-      { question: "The geographic region broadly encompassing countries from Egypt to Iran is commonly referred to as what?", answers: ["Near East","Far East","Middle East","Central Asia"], correct: 2, fact: "The term 'Middle East' was popularized by American naval strategist Alfred Thayer Mahan in 1902.", displayAnswer: "*MIDDLE* East", connectionNote: "A geographic region spanning Western Asia and North Africa." },
-      { question: "In a family with three children, the child who is neither the oldest nor the youngest is called what?", answers: ["Spare","Second","Middle Child","Tweener"], correct: 2, fact: "Research suggests middle children are often more empathetic and better at compromise — perhaps from years of negotiating between siblings.", displayAnswer: "*MIDDLE* Child", connectionNote: "The sibling between the oldest and youngest." }
-    ],
-    connector: { answer: "MIDDLE", hint: "Not first, not last.", reveal: "" }
-  },
-  {
-    date: "2026-03-17",
-    questions: [
-      { question: "What completes the phrase 'keep your ___ crossed,' meaning to hope for good luck?", answers: ["Eyes","Toes","Chris","Fingers"], correct: 3, fact: "Crossing fingers for luck dates to pre-Christian Europe, where the cross shape was believed to concentrate good spirits.", displayAnswer: "*BUTTER*fingers", connectionNote: "Slang for a clumsy person, or a Ferrara candy bar." },
-      { question: "In fishing, what technique involves casting a lightweight lure designed to mimic an insect landing on the water?", answers: ["Fly","Ice","Angling","Spear"], correct: 0, fact: "Fly fishing dates back to 2nd century Macedonia, where fishermen used hooks dressed with red wool and feathers.", displayAnswer: "*BUTTER*fly", connectionNote: "A winged insect beloved by gardens everywhere." },
-      { question: "FA, Stanley, Ryder. What word connects the prize for these competitions?", answers: ["Bowl","Trophy","Championship","Cup"], correct: 3, fact: "The Stanley Cup is the oldest professional sports trophy in North America, first awarded in 1893.", displayAnswer: "*BUTTER*cup", connectionNote: "A bright yellow wildflower common in grasslands." },
-      { question: "The name of the 2008 film starring Sean Penn about the first openly gay elected official in California history.", answers: ["Milk","Kedi","Flee","Amy"], correct: 0, fact: "Harvey Milk was elected to the San Francisco Board of Supervisors in 1977 and assassinated in 1978.", displayAnswer: "*BUTTER*milk", connectionNote: "The slightly sour liquid left after butter is churned." }
-    ],
-    connector: { answer: "BUTTER", hint: "Can you churn out an answer?", reveal: "" }
-  },
-  {
-    date: "2026-03-15",
-    questions: [
 // ── Themes ────────────────────────────────────────────────────────────────────
 const THEMES = {
   dark: {
