@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from "react";
 
 // ── Analytics helper ───────────────────────────────────────────────────────────
 function track(eventName, params = {}) {
@@ -221,7 +221,7 @@ export default function App() {
   );
 
   const betaBanner = (
-    <div style={{ background: "#f59e0b", padding: "5px 0", textAlign: "center" }}>
+    <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 999, background: "#f59e0b", padding: "5px 0", textAlign: "center" }}>
       <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, fontWeight: 700, color: "#07070d", letterSpacing: "0.15em" }}>BETA — expect bugs, share feedback</span>
     </div>
   );
@@ -232,7 +232,7 @@ export default function App() {
 
     // ── Archive mode picker ──
     if (!archiveMode) return (
-      <div style={{ minHeight: "100vh", background: t.bg, fontFamily: "'DM Sans', sans-serif", transition: "background 0.2s" }}>
+      <div style={{ minHeight: "100vh", background: t.bg, fontFamily: "'DM Sans', sans-serif", transition: "background 0.2s", paddingTop: 28 }}>
         {globalStyle}
         {betaBanner}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "20px 24px 0", position: "relative" }}>
@@ -282,7 +282,7 @@ export default function App() {
 
     // ── Archive game ──
     return (
-      <div style={{ minHeight: "100vh", background: t.bg, fontFamily: "'DM Sans', sans-serif", transition: "background 0.2s" }}>
+      <div style={{ minHeight: "100vh", background: t.bg, fontFamily: "'DM Sans', sans-serif", transition: "background 0.2s", paddingTop: 28 }}>
         {globalStyle}
         {betaBanner}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "20px 24px 0", position: "relative" }}>
@@ -315,7 +315,7 @@ export default function App() {
   // ── Archive browser ──
   if (showArchive) {
     return (
-      <div style={{ minHeight: "100vh", background: t.bg, fontFamily: "'DM Sans', sans-serif", transition: "background 0.2s" }}>
+      <div style={{ minHeight: "100vh", background: t.bg, fontFamily: "'DM Sans', sans-serif", transition: "background 0.2s", paddingTop: 28 }}>
         {globalStyle}
         {betaBanner}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "20px 24px 0", position: "relative" }}>
@@ -344,8 +344,9 @@ export default function App() {
 
   // ── Daily game ──
   return (
-    <div style={{ minHeight: "100vh", background: t.bg, fontFamily: "'DM Sans', sans-serif", transition: "background 0.2s" }}>
+    <div style={{ minHeight: "100vh", background: t.bg, fontFamily: "'DM Sans', sans-serif", transition: "background 0.2s", paddingTop: 28 }}>
       {globalStyle}
+      {betaBanner}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "20px 24px 0", position: "relative" }}>
         <div style={{ textAlign: "center" }}>
           <div style={{ fontFamily: "'Libre Baskerville', serif", fontSize: 28, fontWeight: 700, color: t.textTitle, letterSpacing: "-0.03em", transition: "color 0.2s" }}>
@@ -365,7 +366,6 @@ export default function App() {
         </div>
         {headerButtons}
       </div>
-      {betaBanner}
       <div style={{ display: "flex", justifyContent: "center", padding: "28px 16px 48px" }}>
         <div style={{ width: "100%", maxWidth: 480 }}>
           {puzzleStatus === "loading" && (
@@ -667,11 +667,7 @@ function Game({ puzzle, t, playSound = () => {}, isArchive = false, startHardMod
     const text = buildShareText();
     track("result_shared", { puzzle_date: puzzle.date, mode: hardMode ? "hard" : "normal", is_archive: isArchive });
     if (navigator.share) {
-      navigator.share({
-        title: "linqed",
-        text,
-        url: "https://playlinqed.com",
-      }).catch(() => {});
+      navigator.share({ text }).catch(() => {});
     } else {
       navigator.clipboard.writeText(text);
       setCopied(true); setTimeout(() => setCopied(false), 2500);
