@@ -989,7 +989,7 @@ function Game({ puzzle, t, playSound = () => {}, isArchive = false, startHardMod
         <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 20 }}>
           {answers.map((a, i) => {
             const q = puzzle.questions[i];
-            const displayText = (q.connectorKey || "").trim() || q.answers[a.selected];
+            const displayText = (q.connectorKey || "").trim() || q.answers[q.correct];
             return (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, background: t.recapBg, border: `1px solid ${t.recapBorder}`, borderRadius: 8, padding: "9px 14px", transition: "background 0.2s" }}>
                 {!hardMode && <span style={{ fontSize: 13, color: a.isCorrect ? "#6ee7b7" : "#fca5a5" }}>{a.isCorrect ? "✓" : "✗"}</span>}
