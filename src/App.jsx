@@ -17,10 +17,6 @@ function getPuzzleNumber(dateStr) {
   return diff + 1; // puzzle #1 = March 11
 }
 
-function getTodayKey() {
-  return new Date().toLocaleDateString("en-CA");
-}
-
 function renderHighlighted(text, baseColor, highlightColor = "#f59e0b") {
   if (!text) return null;
   const parts = text.split(/(\*[^*]+\*)/g);
@@ -609,7 +605,7 @@ function Game({ puzzle, t, playSound = () => {}, isArchive = false, startHardMod
 
     // In hard mode, lock in selections on first submission
     let currentAnswers = answers;
-    if (hardMode && answers.length === 0) {
+    if (hardMode && answers.length < puzzle.questions.length) {
       const finalAnswers = hardSelections.map((selected, i) => ({
         selected,
         correct: puzzle.questions[i].correct,
@@ -645,11 +641,15 @@ function Game({ puzzle, t, playSound = () => {}, isArchive = false, startHardMod
     track("puzzle_completed", { result: "success", trivia_score: currentAnswers.filter(a => a.isCorrect).length, guess_number: newGuessCount, puzzle_date: puzzle.date, mode: hardMode ? "hard" : "normal", is_archive: isArchive });
     localStorage.setItem(storageKey, JSON.stringify({ answers: currentAnswers, connResult: result, guessCount: newGuessCount, hardMode }));
     if (!isArchive) {
+      const today = new Date().toLocaleDateString("en-CA");
       const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
       const yk = yesterday.toLocaleDateString("en-CA");
+      const alreadyPlayedToday = !!localStorage.getItem(`linqed_played_${today}`);
       const playedYesterday = !!localStorage.getItem(`linqed_played_${yk}`);
-      const newStreak = playedYesterday ? streak + 1 : 1;
-      setStreak(newStreak); localStorage.setItem(streakKey, String(newStreak));
+      if (!alreadyPlayedToday) {
+        const newStreak = playedYesterday ? streak + 1 : 1;
+        setStreak(newStreak); localStorage.setItem(streakKey, String(newStreak));
+      }
     }
     setTimeout(() => setStep(STEPS.DONE), 500);
   }
@@ -1020,7 +1020,8 @@ function Game({ puzzle, t, playSound = () => {}, isArchive = false, startHardMod
 
   // ── Done ──
   const emoji = correctCount === 4 && connResult === "correct" ? "🎯" : correctCount >= 3 && connResult === "correct" ? "🔥" : connResult === "correct" ? "👀" : "💀";
-  const streakMsg = !isArchive && (streak > 1 ? `🔥 ${streak} day streak` : streak === 1 ? "🔥 Streak started!" : "");
+  const currentStreak = !isArchive ? parseInt(localStorage.getItem(streakKey) || "0") : 0;
+  const streakMsg = !isArchive && (currentStreak > 1 ? `🔥 ${currentStreak} day streak` : currentStreak === 1 ? "🔥 Streak started!" : "");
 
   return (
     <div className="fade-up">
