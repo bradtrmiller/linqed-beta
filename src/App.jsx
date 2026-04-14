@@ -192,8 +192,7 @@ export default function App() {
     load();
     const seen = localStorage.getItem("linqed_seen_instructions");
     if (!seen) { setShowHelp(true); localStorage.setItem("linqed_seen_instructions", "1"); }
-    const seenBeta = localStorage.getItem("linqed_seen_beta_notice");
-    if (!seenBeta) { setShowBetaNotice(true); }
+    setShowBetaNotice(true);
   }, []);
 
   const headerButtons = (
@@ -393,7 +392,7 @@ export default function App() {
           )}
         </div>
       </div>
-      {showBetaNotice && <BetaNotice t={t} onClose={() => { setShowBetaNotice(false); localStorage.setItem("linqed_seen_beta_notice", "1"); }} />}
+      {showBetaNotice && <BetaNotice t={t} onClose={() => setShowBetaNotice(false)} />}
       {showHelp && <HowToPlay t={t} onClose={() => setShowHelp(false)} />}
       <Footer t={t} onReset={handleReset} />
     </div>
