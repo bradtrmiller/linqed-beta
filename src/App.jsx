@@ -100,6 +100,7 @@ export default function App() {
   const [puzzle,        setPuzzle]        = useState(null);
   const [puzzleStatus,  setPuzzleStatus]  = useState("loading"); // loading | ready | error | no-puzzle
   const [showHelp,      setShowHelp]      = useState(false);
+  const [showBetaNotice, setShowBetaNotice] = useState(false);
   const [showArchive,   setShowArchive]   = useState(false);
   const [archivePuzzle, setArchivePuzzle] = useState(null);
   const [archiveMode,   setArchiveMode]   = useState(null);
@@ -191,6 +192,8 @@ export default function App() {
     load();
     const seen = localStorage.getItem("linqed_seen_instructions");
     if (!seen) { setShowHelp(true); localStorage.setItem("linqed_seen_instructions", "1"); }
+    const seenBeta = localStorage.getItem("linqed_seen_beta_notice");
+    if (!seenBeta) { setShowBetaNotice(true); }
   }, []);
 
   const headerButtons = (
@@ -213,6 +216,7 @@ export default function App() {
       @keyframes pop    { from { opacity:0; transform:scale(0.97);     } to { opacity:1; transform:scale(1);     } }
       @keyframes shake  { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
       @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+      @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
     `}</style>
   );
 
@@ -389,6 +393,7 @@ export default function App() {
           )}
         </div>
       </div>
+      {showBetaNotice && <BetaNotice t={t} onClose={() => { setShowBetaNotice(false); localStorage.setItem("linqed_seen_beta_notice", "1"); }} />}
       {showHelp && <HowToPlay t={t} onClose={() => setShowHelp(false)} />}
       <Footer t={t} onReset={handleReset} />
     </div>
@@ -542,14 +547,15 @@ function Game({ puzzle, t, playSound = () => {}, isArchive = false, startHardMod
   const [guessCount,   setGuessCount]   = useState(0);
   const [copied,       setCopied]       = useState(false);
   const [streak,       setStreak]       = useState(0);
+  const [hintUsed,     setHintUsed]     = useState(false);
   const inputRef = useRef(null);
 
   useEffect(() => {
     const saved = localStorage.getItem(storageKey);
     if (saved) {
-      const { answers: a, connResult: cr, guessCount: gc, hardMode: hm } = JSON.parse(saved);
+      const { answers: a, connResult: cr, guessCount: gc, hardMode: hm, hintUsed: hu } = JSON.parse(saved);
       setAnswers(a); setConnResult(cr); setGuessCount(gc || 0);
-      setHardMode(hm || false); setStep(STEPS.DONE);
+      setHardMode(hm || false); setHintUsed(hu || false); setStep(STEPS.DONE);
     }
     if (!isArchive) setStreak(parseInt(localStorage.getItem(streakKey) || "0"));
   }, []);
@@ -627,7 +633,7 @@ function Game({ puzzle, t, playSound = () => {}, isArchive = false, startHardMod
       track("link_guessed", { correct: false, guess_number: newGuessCount, puzzle_date: puzzle.date, mode: hardMode ? "hard" : "normal" });
       if (newGuessCount >= 3) {
         const result = "wrong"; setConnResult(result);
-        localStorage.setItem(storageKey, JSON.stringify({ answers: currentAnswers, connResult: result, guessCount: newGuessCount, hardMode }));
+        localStorage.setItem(storageKey, JSON.stringify({ answers: currentAnswers, connResult: result, guessCount: newGuessCount, hardMode, hintUsed }));
         if (!isArchive) { setStreak(0); localStorage.setItem(streakKey, "0"); }
         track("puzzle_completed", { result: "failed", trivia_score: currentAnswers.filter(a => a.isCorrect).length, puzzle_date: puzzle.date, mode: hardMode ? "hard" : "normal", is_archive: isArchive });
         setTimeout(() => setStep(STEPS.DONE), 500);
@@ -639,7 +645,7 @@ function Game({ puzzle, t, playSound = () => {}, isArchive = false, startHardMod
     playSound("linkCorrect"); setTimeout(() => playSound("complete"), 560);
     track("link_guessed", { correct: true, guess_number: newGuessCount, puzzle_date: puzzle.date, mode: hardMode ? "hard" : "normal" });
     track("puzzle_completed", { result: "success", trivia_score: currentAnswers.filter(a => a.isCorrect).length, guess_number: newGuessCount, puzzle_date: puzzle.date, mode: hardMode ? "hard" : "normal", is_archive: isArchive });
-    localStorage.setItem(storageKey, JSON.stringify({ answers: currentAnswers, connResult: result, guessCount: newGuessCount, hardMode }));
+    localStorage.setItem(storageKey, JSON.stringify({ answers: currentAnswers, connResult: result, guessCount: newGuessCount, hardMode, hintUsed }));
     if (!isArchive) {
       const today = new Date().toLocaleDateString("en-CA");
       const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
@@ -660,7 +666,8 @@ function Game({ puzzle, t, playSound = () => {}, isArchive = false, startHardMod
     const conn = "🔗" + "❌".repeat(wrongGuesses) + (connResult === "correct" ? "✅" : "❌".repeat(Math.max(0, 3 - wrongGuesses)));
     const label = isArchive ? `linqed archive — ${puzzle.date}` : `linqed — ${puzzle.date}`;
     const modeTag = hardMode ? " 😈 Hard Mode" : "";
-    return `🧩 ${label}${modeTag}\n\n${dots} ${conn}\n\nplaylinqed.com`;
+    const hintTag = hintUsed ? " 💡" : "";
+    return `🧩 ${label}${modeTag}${hintTag}\n\n${dots} ${conn}\n\nplaylinqed.com`;
   }
 
   function handleShare() {
@@ -888,8 +895,20 @@ function Game({ puzzle, t, playSound = () => {}, isArchive = false, startHardMod
             />
             <button onClick={handleConnectorSubmit} disabled={!connInput.trim() || !!connResult} style={{ padding: "12px 18px", background: "#f59e0b", border: "none", borderRadius: 8, color: "#07070d", fontSize: 14, fontWeight: 700, cursor: connInput.trim() && !connResult ? "pointer" : "not-allowed", opacity: connInput.trim() && !connResult ? 1 : 0.4, transition: "opacity 0.15s" }}>Go</button>
           </div>
-          {!connResult && guessCount > 0 && <p style={{ fontSize: 12, color: "#ef4444", lineHeight: 1.5, marginBottom: puzzle.connector.hint && guessCount >= 2 ? 8 : 0 }}>{guessCount === 1 ? "Not quite — 2 guesses left." : "One guess left!"}</p>}
-          {!connResult && puzzle.connector.hint && guessCount >= 2 && <p style={{ fontSize: 13, color: "rgba(245,158,11,0.8)", lineHeight: 1.5 }}>💡 {puzzle.connector.hint}</p>}
+          {!connResult && guessCount > 0 && <p style={{ fontSize: 12, color: "#ef4444", lineHeight: 1.5, marginBottom: 8 }}>{guessCount === 1 ? "Not quite — 2 guesses left." : "One guess left!"}</p>}
+          {!connResult && puzzle.connector.hint && !hintUsed && (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 6 }}>
+            <button onClick={() => setHintUsed(true)} style={{ padding: "6px 16px", background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.25)", borderRadius: 999, color: "rgba(245,158,11,0.85)", fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", cursor: "pointer", transition: "all 0.15s", animation: guessCount >= 2 ? "pulse 1s ease-in-out infinite" : "none" }}>
+              💡 Stuck? Use a hint
+            </button>
+            {Date.now() < new Date("2026-04-15").getTime() && (
+              <span style={{ fontSize: 9, fontWeight: 700, color: "#07070d", background: "#f59e0b", borderRadius: 999, padding: "2px 6px", letterSpacing: "0.06em" }}>NEW!</span>
+            )}
+          </div>
+        )}
+        {!connResult && hintUsed && puzzle.connector.hint && (
+          <p style={{ fontSize: 13, color: "rgba(245,158,11,0.8)", lineHeight: 1.5, marginTop: 4 }}>💡 {puzzle.connector.hint}</p>
+        )}
         </Card>
 
         <p style={{ fontSize: 11, color: t.textFaint, textAlign: "center", lineHeight: 1.6 }}>Not sure? Change your answers above — it's free.</p>
@@ -1012,8 +1031,20 @@ function Game({ puzzle, t, playSound = () => {}, isArchive = false, startHardMod
           />
           <button onClick={handleConnectorSubmit} disabled={!connInput.trim() || !!connResult} style={{ padding: "12px 18px", background: "#f59e0b", border: "none", borderRadius: 8, color: "#07070d", fontSize: 14, fontWeight: 700, cursor: connInput.trim() && !connResult ? "pointer" : "not-allowed", opacity: connInput.trim() && !connResult ? 1 : 0.4, transition: "opacity 0.15s" }}>Go</button>
         </div>
-        {!connResult && guessCount > 0 && <p style={{ fontSize: 12, color: "#ef4444", lineHeight: 1.5, marginBottom: puzzle.connector.hint && guessCount >= 2 ? 8 : 0 }}>{guessCount === 1 ? "Not quite — 2 guesses left." : "One guess left!"}</p>}
-        {!connResult && puzzle.connector.hint && guessCount >= 2 && <p style={{ fontSize: 13, color: "rgba(245,158,11,0.8)", lineHeight: 1.5 }}>💡 {puzzle.connector.hint}</p>}
+        {!connResult && guessCount > 0 && <p style={{ fontSize: 12, color: "#ef4444", lineHeight: 1.5, marginBottom: 8 }}>{guessCount === 1 ? "Not quite — 2 guesses left." : "One guess left!"}</p>}
+        {!connResult && puzzle.connector.hint && !hintUsed && (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 6 }}>
+            <button onClick={() => setHintUsed(true)} style={{ padding: "6px 16px", background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.25)", borderRadius: 999, color: "rgba(245,158,11,0.85)", fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", cursor: "pointer", transition: "all 0.15s", animation: guessCount >= 2 ? "pulse 1s ease-in-out infinite" : "none" }}>
+              💡 Stuck? Use a hint
+            </button>
+            {Date.now() < new Date("2026-04-15").getTime() && (
+              <span style={{ fontSize: 9, fontWeight: 700, color: "#07070d", background: "#f59e0b", borderRadius: 999, padding: "2px 6px", letterSpacing: "0.06em" }}>NEW!</span>
+            )}
+          </div>
+        )}
+        {!connResult && hintUsed && puzzle.connector.hint && (
+          <p style={{ fontSize: 13, color: "rgba(245,158,11,0.8)", lineHeight: 1.5, marginTop: 4 }}>💡 {puzzle.connector.hint}</p>
+        )}
       </Card>
     </div>
   );
@@ -1173,6 +1204,35 @@ function Footer({ t, onReset }) {
       }}>
         {confirmed ? "⚠️ Tap again to confirm reset" : "🛠 Dev: Clear Data"}
       </button>
+    </div>
+  );
+}
+
+function BetaNotice({ onClose, t }) {
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 200, background: t.overlay, display: "flex", alignItems: "center", justifyContent: "center", padding: "24px", animation: "fadeIn 0.2s ease forwards" }}>
+      <div onClick={e => e.stopPropagation()} style={{ width: "100%", maxWidth: 480, background: t.modalBg, border: `1px solid ${t.cardBorder}`, borderRadius: 16, boxShadow: "0 8px 40px rgba(0,0,0,0.35)", transition: "background 0.2s" }}>
+        <div style={{ padding: "24px 20px 32px" }}>
+          <div style={{ textAlign: "center", marginBottom: 16, position: "relative" }}>
+            <button onClick={onClose} style={{ position: "absolute", right: 0, top: 0, width: 28, height: 28, borderRadius: "50%", background: t.btnBg, border: "none", color: t.btnColor, fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+            <span style={{ fontSize: 28, display: "block", marginBottom: 10 }}>🧪</span>
+            <span style={{ fontFamily: "'Libre Baskerville', serif", fontSize: 17, fontWeight: 700, color: t.text, transition: "color 0.2s" }}>Thanks for being a beta player!</span>
+          </div>
+          <p style={{ fontSize: 14, color: t.textSub, lineHeight: 1.7, marginBottom: 16, transition: "color 0.2s", textAlign: "center" }}>
+            All new features of the linqed beta are now in the official release. Head on over to{" "}
+            <a href="https://playlinqed.com" style={{ color: "#f59e0b", fontWeight: 600, textDecoration: "none" }}>playlinqed.com</a>{" "}
+            to keep playing.
+          </p>
+          <p style={{ fontSize: 14, color: t.textSub, lineHeight: 1.7, marginBottom: 24, transition: "color 0.2s", textAlign: "center" }}>
+            Follow{" "}
+            <a href="https://bsky.app/profile/bradleywithane.com" target="_blank" rel="noopener noreferrer" style={{ color: "#f59e0b", fontWeight: 600, textDecoration: "none" }}>@bradleywithane.com</a>{" "}
+            on Bluesky for updates on future beta builds.
+          </p>
+          <a href="https://playlinqed.com" style={{ display: "block", width: "100%", padding: "13px", background: "#f59e0b", border: "none", borderRadius: 10, color: "#07070d", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: "0.03em", textAlign: "center", textDecoration: "none", boxSizing: "border-box" }}>
+            Go to playlinqed.com →
+          </a>
+        </div>
+      </div>
     </div>
   );
 }
